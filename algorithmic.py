@@ -50,7 +50,7 @@ class Environment:
     def create_coordinate_system(self, leader, reference_robots):
         x_a, y_l = 0, 0
         x_b = leader.distance_to(reference_robots[0])
-        x_b = np.sqrt(x_b*2 - (self.std_noise * np.random.randn())*2)  # Adding noise
+        x_b = np.sqrt(x_b*2 - (self.std_noise * np.random.randn())*2) 
         y_l = np.sqrt(leader.distance_to(reference_robots[1])*2 - x_b*2)
         return x_a, x_b, y_l
 
@@ -72,7 +72,7 @@ class Environment:
         relative_positions = {}
         for robot in self.robots:
             if robot.id == leader.id:
-                relative_positions[robot.id] = (0, 0)  # Leader relative position is (0, 0)
+                relative_positions[robot.id] = (0, 0)  
             else:
                 leader_x, leader_y = self.estimated_positions[leader.id]
                 robot_x, robot_y = self.estimated_positions[robot.id]
@@ -101,45 +101,34 @@ class Environment:
         plt.legend()
         plt.grid(True)
         plt.show()
-
-# Simulation parameters
 num_robots = 15
 std_noise = 0.1
 num_iterations = 5
 
 for i in range(num_iterations):
-    # Initialize environment
     env = Environment(num_robots, std_noise)
     env.initialize_robots()
-
-    # Leader election
     leader = env.leader_election()
     print("Iteration:", i+1)
     print("Leader:", leader.id)
 
-    # Select reference robots
     reference_robots = env.select_reference_robots(leader)
     print("Reference Robots:", [robot.id for robot in reference_robots])
 
-    # Create coordinate system
     x_a, x_b, y_l = env.create_coordinate_system(leader, reference_robots)
     print("Coordinate System:")
     print("x_a:", x_a)
     print("x_b:", x_b)
     print("y_l:", y_l)
 
-    # Estimate positions
     env.estimate_positions(leader, reference_robots)
 
-    # Estimate relative positions
     relative_positions = env.estimate_relative_positions()
     print("Estimated Relative Positions:")
     for robot_id, relative_pos in relative_positions.items():
         print(f"{robot_id}: {relative_pos}")
 
-    # Calculate MSE
     mse = env.calculate_mse()
     print("Mean Squared Error:", mse)
 
-    # Plot robots
     env.plot_robots()
