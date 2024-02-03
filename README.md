@@ -17,13 +17,7 @@ The objective of this work is to enable robots to autonomously establish a commo
 ### Overview
 The code models an environment in which robots operate with the goal of estimating their positions in relation to a leader robot. The ultimate objective is to evaluate the location estimate algorithm's accuracy and comprehend the behavior of the system.
 
- 1. Setup of the Environment
- 2. Leader Election
- 3. Reference Robot Selection
- 4. Coordinate System Creation
- 5. Position Estimation
- 6. Relative Position Calculation
- 7. MSE Calculation
+ 1. **Setup of the Environment:** A predetermined number of robots are arranged at random in a predetermined area to form the environment. The uncertainty in position measurements is also reflected in the configuration of the noise standard deviation
 
 ## Using Robotarium
 This approach extends the Robotarium framework, adding initialization and leader election function to the library. This approach is an improvement of algorithmic approach with Robotarium framework. 
