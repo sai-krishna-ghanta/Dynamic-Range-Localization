@@ -28,14 +28,16 @@ The code models an environment in which robots operate with the goal of estimati
 
 **Results:** The output for each iteration includes the leader and reference robots, along with the estimated relative positions and mean squared error (MSE). Additionally, it provides the coordinates x_a (representing one reference robot's x-coordinate), x_b (representing the other reference robot's x-coordinate), and y_l (representing the leader robot's y-coordinate in its own coordinate system). 
 
-![95FC043B-3956-4E0F-BE6E-BD5608A9CA90](https://github.com/sai-krishna-ghanta/Dynamic-Range-Localization/assets/84200397/2d2b22b3-25ac-4b86-b9ae-e13afa94ac90)
-
+<div style="display: flex; justify-content: center;">
+  <img src="images/a.png" alt="Image 1" style="width: 45%; margin-right: 5px;">
+  <img src="images/a32.png" alt="Image 2" style="width: 45%;">
+</div>
 ## Using Robotarium
 This approach extends the Robotarium framework, adding initialization and leader election function to the library. This approach is an improvement of algorithmic approach with Robotarium framework. 
 
 <div style="display: flex; justify-content: center;">
-  <img src="download.png" alt="Image 1" style="width: 45%; margin-right: 5px;">
-  <img src="b.png" alt="Image 2" style="width: 45%;">
+  <img src="images/download.png" alt="Image 1" style="width: 45%; margin-right: 5px;">
+  <img src="images/b.png" alt="Image 2" style="width: 45%;">
 </div>
 
 
