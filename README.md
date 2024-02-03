@@ -26,4 +26,14 @@ This approach extends the Robotarium framework, adding initialization and leader
 ## The Installation
 The implementation of the proposed work is easy to perform. 
 
+1. **Clone the Repository**:
+
+git clone https://github.com/sai-krishna-ghanta/Dynamic-Range-Localization.git
+
+2. **Install Dependencies**:
+
+pip install numpy matplotlib
+python a_robotarium.py
+python algorithmic.py
+
 
