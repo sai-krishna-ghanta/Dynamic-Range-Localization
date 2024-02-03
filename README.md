@@ -32,7 +32,7 @@ The implementation of the proposed work is easy to perform.
 2. **Install Dependencies**:
 ```pip install numpy matplotlib```
 
-3. ** Run the Scripts **:
+3. **Run the Scripts**:
 ```python a_robotarium.py ```
 ```python algorithmic.py```
 
