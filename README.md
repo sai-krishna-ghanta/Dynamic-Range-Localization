@@ -1,6 +1,6 @@
 # Dynamic Range Localization
 
-For static visualizations - run jupyter notebooks
+For Static Visualizations - run jupyter notebooks
 
 
 For Interactive Visualizations - run python files or upload code to robotarium
