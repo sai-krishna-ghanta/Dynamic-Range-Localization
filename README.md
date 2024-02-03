@@ -35,7 +35,7 @@ This approach extends the Robotarium framework, adding initialization and leader
 
 <div style="display: flex; justify-content: center;">
   <img src="download.png" alt="Image 1" style="width: 45%; margin-right: 5px;">
-  <img src="a.png" alt="Image 2" style="width: 45%;">
+  <img src="b.png" alt="Image 2" style="width: 45%;">
 </div>
 
 
