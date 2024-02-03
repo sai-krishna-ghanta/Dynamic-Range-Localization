@@ -33,6 +33,12 @@ The code models an environment in which robots operate with the goal of estimati
 ## Using Robotarium
 This approach extends the Robotarium framework, adding initialization and leader election function to the library. This approach is an improvement of algorithmic approach with Robotarium framework. 
 
+<div style="display: flex; justify-content: center;">
+  <img src="download.png" alt="Image 1" style="width: 45%; margin-right: 5px;">
+  <img src="a.png" alt="Image 2" style="width: 45%;">
+</div>
+
+
 ## The Installation
 The implementation of the proposed work is easy to perform. 
 
