@@ -1,5 +1,8 @@
 # Dynamic Range Localization
 
+For static visualizations - run jupyter notebooks
+For Interactive Visualizations - run python files or upload code to robotarium
+
 
 ## Objective
 The objective of this work is to enable robots to autonomously establish a common coordinate system and accurately estimate their positions relative to each other using only range information. This is achieved through two different approaches:
