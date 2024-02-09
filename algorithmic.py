@@ -17,8 +17,10 @@ class Robot:
 
     def distance_to(self, other_robot):
         true_distance_squared = (self.x - other_robot.x)**2 + (self.y - other_robot.y)**2
-        noise = self.std_noise * np.random.randn()
-        noisy_distance_squared = max(true_distance_squared + noise, 0)  # Ensure non-negative
+        # Generate noise with a lower bound to prevent negative squared distance
+        lower_bound = -np.sqrt(true_distance_squared) / self.std_noise
+        noise = self.std_noise * np.clip(np.random.randn(), lower_bound, None)
+        noisy_distance_squared = true_distance_squared + noise
         return np.sqrt(noisy_distance_squared)
 
 class Environment:
@@ -81,7 +83,7 @@ class Environment:
 
         x_a = (z_ab**2 + z_la**2 - z_lb**2) / (2 * z_ab)
         x_b = (z_la**2 - z_ab**2 -z_lb**2) / (2 * z_ab)
-        y_l = np.sqrt(z_la**2 - x_a**2)
+        y_l = np.sqrt(z_la - x_a**2)
 
         self.new_coordinate_positions[leader.id] = (0, y_l)
         self.new_coordinate_positions[reference_robots[0].id] = (-abs(x_a), 0)  
@@ -146,7 +148,7 @@ class Environment:
 
 
 num_robots = 15
-std_noise = 0.00001
+std_noise = 0.0000001
 num_iterations = 5
 
 for i in range(num_iterations):
