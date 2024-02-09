@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Robot:
-    def __init__(self, id, x, y):
+    def __init__(self, id, x, y, std_noise):
         self.id = id
         self.x = x
         self.y = y
@@ -10,12 +10,16 @@ class Robot:
         self.leader_bid = None
         self.leader_id = None
         self.reference_robots = None
-    
+        self.std_noise = std_noise  
+
     def update_neighbors(self, robots):
         self.neighbors = [robot for robot in robots if self.distance_to(robot) <= 2 and robot.id != self.id]
-    
+
     def distance_to(self, other_robot):
-        return np.sqrt((self.x - other_robot.x)**2 + (self.y - other_robot.y)**2)
+        true_distance_squared = (self.x - other_robot.x)**2 + (self.y - other_robot.y)**2
+        noise = self.std_noise * np.random.randn()
+        noisy_distance_squared = max(true_distance_squared + noise, 0)  # Ensure non-negative
+        return np.sqrt(noisy_distance_squared)
 
 class Environment:
     def __init__(self, num_robots, std_noise):
@@ -32,10 +36,10 @@ class Environment:
         for i in range(self.num_robots):
             x = np.random.uniform(0, 10)
             y = np.random.uniform(0, 10)
-            robot = Robot("rb" + str(i), x, y)
+            robot = Robot("rb" + str(i), x, y, self.std_noise)
             self.robots.append(robot)
             self.true_positions[robot.id] = (x, y)
-    
+
     def leader_election(self):
         for robot in self.robots:
             robot.update_neighbors(self.robots)
@@ -43,48 +47,65 @@ class Environment:
         leader = max(self.robots, key=lambda x: x.leader_bid)
         leader.leader_id = leader.id
         return leader
-    
+
     def select_reference_robots(self, leader):
         sorted_neighbors = sorted(leader.neighbors, key=lambda x: leader.distance_to(x))
         reference_robots = sorted_neighbors[:2]
         leader.reference_robots = reference_robots
         return reference_robots
 
+    def triangulate_positions(self, leader, ref_a, ref_b, other_robot):
+        x1, y1 = self.new_coordinate_positions[leader.id]
+        x2, y2 = self.new_coordinate_positions[ref_a.id]
+        x3, y3 = self.new_coordinate_positions[ref_b.id]
+        
+        d1 = other_robot.distance_to(leader)
+        d2 = other_robot.distance_to(ref_a)
+        d3 = other_robot.distance_to(ref_b)
+        A = 2*x2 - 2*x1
+        B = 2*y2 - 2*y1
+        C = d1**2 - d2**2 - x1**2 + x2**2 - y1**2 + y2**2
+        D = 2*x3 - 2*x2
+        E = 2*y3 - 2*y2
+        F = d2**2 - d3**2 - x2**2 + x3**2 - y2**2 + y3**2
+        
+        x = (C*E - F*B) / (E*A - B*D)
+        y = (C*D - A*F) / (B*D - A*E)
+        
+        return x, y
+
     def calculate_new_positions(self, leader, reference_robots):
         z_la = leader.distance_to(reference_robots[0])
         z_lb = leader.distance_to(reference_robots[1])
         z_ab = reference_robots[0].distance_to(reference_robots[1])
-        x_a, x_b, y_l = self.calculate_positions(z_la, z_lb, z_ab)
-        self.new_coordinate_positions[leader.id] = (0, 0)  # Leader at origin
-        self.new_coordinate_positions[reference_robots[0].id] = (x_a, 0)
-        self.new_coordinate_positions[reference_robots[1].id] = (x_b, np.sqrt(abs(z_lb**2 - x_b**2)))
+
+        x_a = (z_ab**2 + z_la**2 - z_lb**2) / (2 * z_ab)
+        x_b = (z_la**2 - z_ab**2 -z_lb**2) / (2 * z_ab)
+        y_l = np.sqrt(z_la**2 - x_a**2)
+
+        self.new_coordinate_positions[leader.id] = (0, y_l)
+        self.new_coordinate_positions[reference_robots[0].id] = (-abs(x_a), 0)  
+        self.new_coordinate_positions[reference_robots[1].id] = (abs(x_b), 0)   
 
         for robot in self.robots:
             if robot not in [leader] + reference_robots:
-                self.new_coordinate_positions[robot.id] = (np.random.uniform(-5, 5), np.random.uniform(-5, 5))  # Placeholder
-
-    def calculate_positions(self, z_la, z_lb, z_ab):
-        x_a = (z_ab**2 + z_la**2 - z_lb**2) / (2 * z_ab)
-        x_b = (z_ab**2 - z_la**2 + z_lb**2) / (2 * z_ab)
-        y_l = np.sqrt(abs(z_la**2 - x_a**2))
-        return x_a, x_b, y_l
-    
-    def calculate_new_positions_with_noise(self):
-        # Simulate measurement noise and recalculate positions
-        for robot in self.robots:
-            dx = self.std_noise * np.random.randn()
-            dy = self.std_noise * np.random.randn()
-            self.new_coordinate_positions[robot.id] = (robot.x + dx, robot.y + dy)
+                x, y = self.triangulate_positions(leader, reference_robots[0], reference_robots[1], robot)
+                self.new_coordinate_positions[robot.id] = (x, y)
 
 
     def calculate_mse(self):
         errors = []
-        for robot_id, new_pos in self.new_coordinate_positions.items():
-            true_pos = self.true_positions[robot_id]
-            error = np.sum((np.array(true_pos) - np.array(new_pos))**2)
-            errors.append(error)
+        for robot in self.robots:
+            for neighbor in robot.neighbors:
+                true_distance = np.sqrt((self.true_positions[robot.id][0] - self.true_positions[neighbor.id][0])**2 + 
+                                        (self.true_positions[robot.id][1] - self.true_positions[neighbor.id][1])**2)
+                new_distance = np.sqrt((self.new_coordinate_positions[robot.id][0] - self.new_coordinate_positions[neighbor.id][0])**2 +
+                                    (self.new_coordinate_positions[robot.id][1] - self.new_coordinate_positions[neighbor.id][1])**2)
+                error = (true_distance - new_distance)**2
+                errors.append(error)
         mse = np.mean(errors)
         return mse
+
 
     def plot_robots(self, iteration, leader_id, reference_robot_ids):
         fig, ax = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
@@ -125,7 +146,7 @@ class Environment:
 
 
 num_robots = 15
-std_noise = 0.1
+std_noise = 0.00001
 num_iterations = 5
 
 for i in range(num_iterations):
